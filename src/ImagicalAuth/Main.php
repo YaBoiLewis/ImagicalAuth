@@ -6,9 +6,28 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat as TF;
 use pocketmine\event\Listener;
-class Main extends PluginBase and implements Listner {
+class Main extends PluginBase implements Listener {
+
+     const PREFIX = TF::RED . "[" . TF::LIGHT_PURPLE . "ImagicalMine" . TF::RED . "] ";
+
      public $toLogin = array();
      public $toRegister = array();
+
+    /** @var Main */
+    private static $instance = null;
+    /** @var Player[] */
+    private $unAuthed = [];
+    /** @var $sql */
+    private $sql;
+    /** @var Config */
+    private $cfg;
+    /** @var Config */
+    private $messages;
+
+    public function onLoad(){
+      $this->getLogger()->info(ImagicalAuth::PREFIX . "Loaded!");
+      self::$instance = $this;
+    }
 	
 	public function onEnable()
 	{
@@ -65,7 +84,10 @@ class Main extends PluginBase and implements Listner {
 			$this->messages->set("message.authentificationFail", "§cCould not authentificate account!");
 		}
 		$this->messages->save();
-	}  
+	}
+    public function onDisable(){
+      $this->getLogger()->info(ImagicalAuth::PREFIX . "Disabled!");
+    }
   /**
    * Gets message from configuration
    *
@@ -101,29 +123,6 @@ class Main extends PluginBase and implements Listner {
    */
   public static function getInstance(){
     return self::$instance;
-  }
-  /**
-   * Initiate MySQL Database
-   *
-   * @param $host
-   * @param $username
-   * @param $password
-   * @param $db_name
-   * @param $port
-   */
-  public function initDatabase($host, $username, $password, $db_name, $port){
-    $this->sql = new \mysqli($host, $username, $password, $db_name, $port);
-  }
-  /**
-   * Return MySQL database
-   *
-   * @return \mysqli|null
-   */
-  public function getDatabase(){
-    if ($this->sql instanceof \mysqli) {
-      return $this->sql;
-    }
-    return null;
   }
   /**
    * Returns hashed format of password
